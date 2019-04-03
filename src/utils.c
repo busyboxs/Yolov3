@@ -24,6 +24,7 @@ double get_wall_time()
 }
 */
 
+// 获取当前时间，以秒为单位
 double what_time_is_it_now()
 {
     struct timeval time;
@@ -33,6 +34,7 @@ double what_time_is_it_now()
     return (double)time.tv_sec + (double)time.tv_usec * .000001;
 }
 
+// 获取 gpu list，输入格式为 “1,2,3,4...”，数字代表 gpu id，以 ',' 分隔开。
 int *read_intlist(char *gpu_list, int *ngpus, int d)
 {
     int *gpus = 0;
@@ -45,6 +47,7 @@ int *read_intlist(char *gpu_list, int *ngpus, int d)
         }
         gpus = calloc(*ngpus, sizeof(int));
         for(i = 0; i < *ngpus; ++i){
+            // atoi 遇到非数字字符时会直接返回非数字字符前的数字整型
             gpus[i] = atoi(gpu_list);
             gpu_list = strchr(gpu_list, ',')+1;
         }
@@ -71,6 +74,7 @@ int *read_map(char *filename)
     return map;
 }
 
+// 将一个数组分为多段，然后每一段进行 shuffle
 void sorta_shuffle(void *arr, size_t n, size_t size, size_t sections)
 {
     size_t i;
@@ -82,6 +86,7 @@ void sorta_shuffle(void *arr, size_t n, size_t size, size_t sections)
     }
 }
 
+// 将数组中的 n 个元素进行 shuffle
 void shuffle(void *arr, size_t n, size_t size)
 {
     size_t i;
@@ -94,6 +99,8 @@ void shuffle(void *arr, size_t n, size_t size)
     }
 }
 
+// 输入一个其实位置和终止位置，然后返回这之间的打乱顺序的数组
+// eg. (2, 8) 可能返回 (4, 3, 5, 7, 8, 2, 6)
 int *random_index_order(int min, int max)
 {
     int *inds = calloc(max-min, sizeof(int));
@@ -140,7 +147,7 @@ int find_int_arg(int argc, char **argv, char *arg, int def)
     for(i = 0; i < argc-1; ++i){
         if(!argv[i]) continue;
         if(0==strcmp(argv[i], arg)){
-            def = atoi(argv[i+1]);
+            def = atoi(argv[i+1]);  // 将值赋给返回值
             del_arg(argc, argv, i);  // 删除参数
             del_arg(argc, argv, i);  // 删除参数值
             break;
@@ -149,30 +156,34 @@ int find_int_arg(int argc, char **argv, char *arg, int def)
     return def;
 }
 
+// 查找是否含有指定的 float 型参数，如果存在，则将对应的值赋给返回值,
+// 同时删除指定参数和数值，格式通常是 --parameter value
 float find_float_arg(int argc, char **argv, char *arg, float def)
 {
     int i;
     for(i = 0; i < argc-1; ++i){
         if(!argv[i]) continue;
         if(0==strcmp(argv[i], arg)){
-            def = atof(argv[i+1]);
-            del_arg(argc, argv, i);
-            del_arg(argc, argv, i);
+            def = atof(argv[i+1]);  // 将值赋给返回值
+            del_arg(argc, argv, i);  // 删除参数
+            del_arg(argc, argv, i);  // 删除参数值
             break;
         }
     }
     return def;
 }
 
+// 查找是否含有指定的 char 型参数，如果存在，则将对应的值赋给返回值,
+// 同时删除指定参数和数值，格式通常是 --parameter value
 char *find_char_arg(int argc, char **argv, char *arg, char *def)
 {
     int i;
     for(i = 0; i < argc-1; ++i){
         if(!argv[i]) continue;
         if(0==strcmp(argv[i], arg)){
-            def = argv[i+1];
-            del_arg(argc, argv, i);
-            del_arg(argc, argv, i);
+            def = argv[i+1];  // 将值赋给返回值
+            del_arg(argc, argv, i);  // 删除参数
+            del_arg(argc, argv, i);  // 删除参数值
             break;
         }
     }
@@ -194,10 +205,13 @@ char *basecfg(char *cfgfile)
     return c;
 }
 
+// (48 - 57) -> (0 - 9)
+// ()
 int alphanum_to_int(char c)
 {
     return (c < 58) ? c - 48 : c-87;
 }
+
 char int_to_alphanum(int i)
 {
     if (i == 36) return '.';
